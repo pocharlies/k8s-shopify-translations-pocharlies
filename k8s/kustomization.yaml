@@ -15,7 +15,7 @@ labels:
 images:
   - name: shopify-app
     newName: harbor.e-dani.com/homelab/shopify-translation-app
-    digest: sha256:58b61fbf535765078af4d068f5f7aedb2819d09d62a18c4a510e9adb8246077c
+    digest: sha256:cfb850a92c5941c24bd9377bcb7e1860b652e7e95f03c0029d1180d838030d96
 
 patches:
   - target: { kind: Deployment, name: app }
@@ -47,6 +47,8 @@ patches:
                   - { name: DEV_MODE, value: "false" }
                   - { name: SHOPIFY_APP_URL, value: "https://skirmshop.e-dani.com/translations" }
                   - { name: BRAIN_URL, value: "http://skirmshop-brain.skirmshop-brain-prod.svc.cluster.local" }
+                  - name: BRAIN_API_KEY
+                    valueFrom: { secretKeyRef: { name: rag-secrets, key: BRAIN_API_KEY } }
                   # DB_USER/DB_PASSWORD must precede DATABASE_URL: kustomize orders
                   # patch env before base env, so $(DB_USER) wouldn't resolve otherwise.
                   - name: DB_USER
