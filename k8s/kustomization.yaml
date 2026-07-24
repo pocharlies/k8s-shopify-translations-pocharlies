@@ -25,13 +25,10 @@ patches:
       metadata:
         name: app
       spec:
-        # Single replica pinned to the edge node with a hostPort (3458). With a
-        # RollingUpdate, k8s starts the new pod before terminating the old one,
-        # but both bind hostPort 3458 on the only edge node, so the new pod stays
-        # Pending (FailedScheduling: no free ports) and the rollout deadlocks.
-        # Recreate terminates the old pod first, freeing the port.
+        # The app has no node-local port or persistent volume claim, so a
+        # replacement pod can start before the previous pod terminates.
         strategy:
-          type: Recreate
+          type: RollingUpdate
         template:
           spec:
             imagePullSecrets:
@@ -78,9 +75,6 @@ patches:
     patch: |-
       - op: replace
         path: /spec/template/spec/containers/0/ports/0/containerPort
-        value: 3458
-      - op: add
-        path: /spec/template/spec/containers/0/ports/0/hostPort
         value: 3458
   - target: { group: traefik.io, version: v1alpha1, kind: IngressRoute, name: app }
     patch: |-
